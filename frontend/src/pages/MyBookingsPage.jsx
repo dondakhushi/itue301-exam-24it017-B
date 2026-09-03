@@ -1,0 +1,3 @@
+import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+export default function MyBookingsPage() { const { token } = useAuth(); const [bookings,setBookings] = useState([]); useEffect(() => { fetch('/api/v1/bookings/my',{headers:{Authorization:`Bearer ${token}`}}).then(response => response.json()).then(data => setBookings(data.bookings || [])); },[token]); return <section><p className="eyebrow">YOUR SCHEDULE</p><h1>My bookings</h1>{bookings.length ? bookings.map(booking => <div className="booking" key={booking._id}>{booking.className || 'Class'} with {booking.trainerId?.name || 'Trainer'} on {booking.date} at {booking.timeSlot} <b>{booking.status}</b></div>) : <p>No bookings yet.</p>}</section>; }

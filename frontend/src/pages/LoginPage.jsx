@@ -1,0 +1,4 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+export default function LoginPage() { const [email,setEmail] = useState('member@fitzone.com'); const [error,setError] = useState(''); const { login } = useAuth(); const navigate = useNavigate(); async function submit(event) { event.preventDefault(); try { await login(email); navigate('/classes'); } catch (err) { setError(err.message); } } return <section className="panel narrow"><p className="eyebrow">MEMBER ACCESS</p><h1>Welcome to FitZone</h1><form onSubmit={submit}><label>Email<input type="email" value={email} onChange={event => setEmail(event.target.value)} required /></label><button>Sign in</button></form>{error && <p className="error">{error}</p>}</section>; }

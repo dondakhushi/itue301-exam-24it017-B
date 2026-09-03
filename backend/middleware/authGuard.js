@@ -1,0 +1,1 @@
+module.exports = function authGuard(req,res,next) { const header = req.headers.authorization || ''; const token = header.startsWith('Bearer ') ? header.slice(7) : ''; if (!token || !global.activeTokens?.has(token)) return res.status(401).json({ error:'Unauthorized', message:'Missing or invalid Bearer token' }); req.member = global.activeTokens.get(token); next(); };

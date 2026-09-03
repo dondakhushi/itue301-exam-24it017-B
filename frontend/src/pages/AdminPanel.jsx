@@ -1,0 +1,1 @@
+export default function AdminPanel() { return <section className="panel"><p className="eyebrow">ADMIN</p><h1>FitZone control panel</h1><p>Manage trainers and class bookings here.</p></section>; }

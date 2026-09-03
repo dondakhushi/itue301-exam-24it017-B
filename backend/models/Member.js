@@ -1,0 +1,2 @@
+const mongoose = require('mongoose');
+module.exports = mongoose.model('Member', new mongoose.Schema({ name:{type:String,required:true}, email:{type:String,required:true,unique:true}, membershipType:{type:String,enum:['basic','premium','platinum'],default:'basic'} }));

@@ -1,0 +1,2 @@
+const mongoose = require('mongoose');
+module.exports = mongoose.model('Trainer', new mongoose.Schema({ name:{type:String,required:true}, specialization:{type:String,required:true}, available:{type:Boolean,default:true} }));

@@ -1,0 +1,3 @@
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+export default function Navigation() { const { member, logout } = useAuth(); return <nav><strong>FITZONE</strong><div><Link to="/">Login</Link><Link to="/classes">Classes</Link><Link to="/my-bookings">My Bookings</Link><Link to="/admin">Admin</Link>{member && <button onClick={logout}>Logout</button>}</div></nav>; }

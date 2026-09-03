@@ -1,0 +1,22 @@
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+const requestLogger = require('./middleware/requestLogger');
+const authGuard = require('./middleware/authGuard');
+const Member = require('./models/Member');
+const Trainer = require('./models/Trainer');
+const ClassBooking = require('./models/ClassBooking');
+const app = express();
+global.activeTokens = new Map();
+app.use(express.json()); app.use(requestLogger);
+
+app.post('/api/v1/auth/login', async (req,res,next) => { try { if (!req.body.email) return res.status(400).json({error:'ValidationError',message:'Email is required'}); let member = await Member.findOne({email:req.body.email}); if (!member) member = await Member.create({name:req.body.email.split('@')[0],email:req.body.email}); const token = crypto.randomBytes(18).toString('hex'); global.activeTokens.set(token,{id:member._id,email:member.email,name:member.name}); res.status(200).json({member,token,role:'member'}); } catch(err) { next(err); } });
+app.get('/api/v1/trainers', async (req,res,next) => { try { res.status(200).json({trainers:await Trainer.find()}); } catch(err) { next(err); } });
+app.use('/api/v1/bookings', authGuard);
+app.post('/api/v1/bookings', async (req,res,next) => { try { const booking = await ClassBooking.create({ ...req.body, memberId:req.member.id }); res.status(201).json({booking}); } catch(err) { next(err); } });
+app.get('/api/v1/bookings/my', async (req,res,next) => { try { const bookings = await ClassBooking.find({memberId:req.member.id}).populate('memberId','name email').populate('trainerId','name specialization'); res.status(200).json({bookings}); } catch(err) { next(err); } });
+app.patch('/api/v1/bookings/:id/status', async (req,res,next) => { try { const booking = await ClassBooking.findOneAndUpdate({_id:req.params.id,memberId:req.member.id},{status:req.body.status},{new:true,runValidators:true}); if (!booking) return res.status(400).json({error:'NotFound',message:'Booking not found'}); res.status(200).json({booking}); } catch(err) { next(err); } });
+app.use((err,req,res,next) => { if (err.name === 'ValidationError') return res.status(400).json({error:'ValidationError',message:Object.values(err.errors).map(item => item.message)}); if (err.code === 11000) return res.status(400).json({error:'Duplicate',message:'Email already exists'}); console.error(err); res.status(500).json({error:'ServerError',message:'An unexpected server error occurred'}); });
+if (process.env.MONGO_URI) mongoose.connect(process.env.MONGO_URI).then(() => console.log('MongoDB connected')).catch(err => console.error('MongoDB connection failed:',err.message));
+const port = process.env.PORT || 5000; app.listen(port, () => console.log(`FitZone API running on http://localhost:${port}`));

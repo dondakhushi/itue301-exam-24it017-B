@@ -1,0 +1,1 @@
+export default function TrainerCard({ name, specialization, available }) { const label = { true:'Available', false:'Fully Booked' }[available]; return <article className="trainer-card"><h3>{name}</h3><p>{specialization}</p><span className={available ? 'available' : 'booked'}>{label}</span></article>; }
